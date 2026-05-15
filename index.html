@@ -65,7 +65,8 @@
             margin-left: 10px;
         }
 
-        .logo-fixed { height: 70px; width: auto; transform: scale(2.0); }
+          .logo-fixed { height: 120px; width: auto; object-fit: contain; /* Garante que ela não distorça */
+    display: block; }
 
         .container { 
             width: 95%; 
@@ -259,7 +260,6 @@
                     <tr><td>Acessórios</td><td><input type="radio" name="ace" value="Sim"> Sim <input type="radio" name="ace" value="Não"> Não</td><td><input type="checkbox" name="ace_fk"> Flexi|Kure <input type="checkbox" name="ace_cli"> Cliente</td><td><input type="text" name="ace_d"></td></tr>
                 </tbody>
             </table>
-            <p style="font-size: 10px; color: #64748b; margin-top: 5px;">* FK = Flexi | Kure / CLI = Cliente</p>
         </section>
 
         <section>
