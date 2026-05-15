@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solicitação de Precificação Completa</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <style>
-        /* 1. RESET E ESTRUTURA BASE */
-        * { box-sizing: border-box; }
-
+    <style>
+        /* CSS REVISADO PARA CORREÇÃO DE FRONT */
         body { 
             margin: 0;
-            padding: 0;
             font-family: 'Inter', Arial, sans-serif;
             background: linear-gradient(90deg, #0093dd 30%, #5b2fa6);
             color: #0f172a;
@@ -19,10 +16,9 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Centraliza o container horizontalmente */
+            align-items: center; 
         }
         
-        /* 2. TOPBAR CORRIGIDA */
         .topbar {
             position: fixed;
             top: 0;
@@ -36,18 +32,15 @@
             display: none; 
             align-items: center;
             padding: 0 40px;
+            box-sizing: border-box;
         }
 
         .topbar-content {
             display: flex;
             align-items: center;
             width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
             justify-content: space-between;
         }
-
-        .button-group { display: flex; gap: 10px; align-items: center; }
 
         .topbar button { 
             background: #3498db; 
@@ -61,7 +54,6 @@
             transition: 0.3s;
         }
 
-        .topbar button:hover { filter: brightness(0.9); }
         .topbar .btn-save { background: #27ae60; }
 
         .user-meta {
@@ -73,104 +65,53 @@
             margin-left: 10px;
         }
 
-        .logo-fixed { height: 60px; width: auto; }
+        .logo-fixed { height: 70px; width: auto; }
 
-        /* 3. CONTAINER CENTRALIZADO (O CORAÇÃO DO PROBLEMA) */
         .container { 
-            width: 90%; 
+            width: 95%; 
             max-width: 1000px; 
             margin: 0 auto 40px auto; 
             background: white; 
-            padding: 40px; 
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
+            padding: 30px; 
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
             display: none; 
+            box-sizing: border-box;
         }
 
-        .header { 
-            background-color: #3498db; 
-            color: white; 
-            padding: 20px; 
-            text-align: center; 
-            font-size: 24px; 
-            font-weight: bold; 
-            margin-bottom: 30px; 
-            text-transform: uppercase;
-            border-radius: 10px;
-        }
+        .header { background-color: #3498db; color: white; padding: 15px; text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; border-radius: 8px; }
 
-        section { 
-            margin-bottom: 25px; 
-            border: 1px solid #eee; 
-            padding: 20px; 
-            border-radius: 10px;
-        }
+        section { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
+        
+        h3 { margin-top: 0; border-bottom: 2px solid #3498db; padding-bottom: 5px; color: #2c3e50; font-size: 16px; }
 
-        h3 { 
-            margin-top: 0; 
-            border-bottom: 2px solid #3498db; 
-            padding-bottom: 8px; 
-            color: #1e293b; 
-            font-size: 18px; 
-            margin-bottom: 20px;
-        }
-
-        /* 4. AJUSTE DE TABELAS E CAMPOS */
-        .field-row { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 20px; 
-            margin-bottom: 15px; 
-        }
-
+        .field-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 10px; }
         .field { flex: 1; min-width: 200px; }
         
-        label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 13px; color: #334155; }
+        label { font-weight: bold; display: block; margin-bottom: 3px; font-size: 13px; }
 
-        input[type="text"], textarea { 
-            width: 100%; 
-            padding: 10px; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 6px; 
-            background: #f8fafc;
-        }
+        input[type="text"], textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
 
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            table-layout: fixed; /* FORÇA O NAVEGADOR A RESPEITAR AS LARGURAS ABAIXO */
-        }
+        /* AJUSTE DAS TABELAS PARA NÃO ESTICAR */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 12px; word-wrap: break-word; }
+        th { background-color: #f8fafc; }
 
-        th, td { 
-            border: 1px solid #e2e8f0; 
-            padding: 10px; 
-            font-size: 12px; 
-            word-wrap: break-word;
-        }
-
-        th { background-color: #f1f5f9; color: #475569; }
-
-        /* Larguras específicas para as colunas da tabela das fotos */
-        .col-item { width: 25%; }
-        .col-opc { width: 20%; }
-        .col-cont { width: 25%; }
-        .col-det { width: 30%; }
+        .col-1 { width: 25%; } /* Item */
+        .col-2 { width: 22%; } /* Opção */
+        .col-3 { width: 23%; } /* Contrapartida */
+        .col-4 { width: 30%; } /* Detalhar */
 
         .inline-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .inline-group label { font-weight: normal; margin-bottom: 0; cursor: pointer; }
+        .inline-group label { font-weight: normal; margin-bottom: 0; font-size: 11px; }
 
-        /* Rodapé Amarelo das fotos */
-        .footer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 1px solid #cbd5e1; }
-        .footer-item { padding: 15px; border: 1px solid #e2e8f0; }
-        .bg-yellow { background-color: #fef9c3; }
+        .bg-yellow { background-color: #ffffcc; font-weight: bold; }
+        .footer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border: 1px solid #ccc; }
+        .footer-item { padding: 10px; border: 1px solid #eee; }
 
-        /* Login Overlay */
-        #overlay { 
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); 
-            display: flex; align-items: center; justify-content: center; z-index: 1000; 
-        }
-        .login-box { background: white; padding: 40px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        .login-box input { width: 100%; padding: 12px; margin: 20px 0; border: 1px solid #cbd5e1; border-radius: 8px; }
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .login-box { background: white; padding: 30px; border-radius: 8px; width: 300px; text-align: center; }
+        .login-box input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; }
 
         @media print {
             body { padding-top: 0 !important; background: white !important; }
@@ -192,19 +133,16 @@
 <div class="topbar" id="topbar">
     <div class="topbar-content">
         <img src="/static/LogoFlexcolor2.png" class="logo-fixed" alt="Logo">
-
         <div class="button-group">
             <button class="btn-save" onclick="salvarLocal()">Salvar</button>
             <button onclick="salvarJSON()">Salvar JSON</button>
             <button onclick="document.getElementById('importFile').click()">Importar JSON</button>
             <button onclick="baixarPDF()">Baixar PDF</button>
         </div>
-
         <input type="file" id="importFile" style="display:none" accept=".json" onchange="importarJSON(event)">
-
         <div class="user-meta">
-<span id="loggedUser" style="color: #1e3a8a; font-weight: 800;"></span>
-    <div id="accessTime" style="font-size: 11px; margin-top: 4px; color: #64748b;">
+            <span id="loggedUser" style="color: #1e3a8a; font-weight: 800;"></span>
+            <div id="accessTime"></div>
         </div>
     </div>
 </div>
@@ -215,7 +153,7 @@
     <form id="pricingForm">
         <section>
             <div class="field-row">
-                <div class="field"><label>Representante comercial:</label><input type="text" name="representante" placeholder="XXXXXXX"></div>
+                <div class="field"><label>Representante comercial:</label><input type="text" name="representante" placeholder="Digite seu nome"></div>
                 <div class="field" style="max-width: 150px;"><label>Data:</label><input type="text" name="data_geral" placeholder="XX / XX / XXXX"></div>
             </div>
         </section>
@@ -265,7 +203,7 @@
                 <input type="text" name="veiculo">
             </div>
 
-            <div class="field-row" style="margin-top: 15px; background: #f9f9f9; padding: 10px; border: 1px dashed #bbb;">
+            <div class="field-row" style="margin-top: 15px; background: #f9f9f9; padding: 10px; border: 1px dashed #bbb; border-radius: 6px;">
                 <div class="field">
                     <label>Unidade Móvel:</label>
                     <div class="inline-group">
@@ -276,8 +214,8 @@
                 <div class="field">
                     <label>Contrapartida:</label>
                     <div class="inline-group">
-                        <label><input type="checkbox" name="cp_fk"> Flexi | Kure</label>
-                        <label><input type="checkbox" name="cp_cli"> Cliente</label>
+                        <label><input type="checkbox" name="cp_fk"> FK</label>
+                        <label><input type="checkbox" name="cp_cli"> CLI</label>
                     </div>
                 </div>
                 <div class="field"><label>Detalhar:</label><input type="text" name="um_detalhe"></div>
@@ -289,13 +227,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th width="30%">Item</th>
-                        <th width="20%">Opção</th>
-                        <th width="20%">Contrapartida</th>
-                        <th width="30%">Detalhar (Escrita)</th>
+                        <th class="col-1">Item</th>
+                        <th class="col-2">Opção</th>
+                        <th class="col-3">Contrapartida</th>
+                        <th class="col-4">Detalhar</th>
                     </tr>
                 </thead>
-                <tbody>
+               <tbody>
                     <tr><td>Tensão elétrica (interna)</td><td><input type="radio" name="t_int" value="127V"> 127V <input type="radio" name="t_int" value="220V"> 220V</td><td><input type="checkbox" name="t_int_fk"> Flexi|Kure <input type="checkbox" name="t_int_cli"> Cliente</td><td><input type="text" name="t_int_d"></td></tr>
                     <tr><td>Câmera</td><td><input type="radio" name="cam" value="Sim"> Sim <input type="radio" name="cam" value="Não"> Não</td><td><input type="checkbox" name="cam_fk"> Flexi|Kure <input type="checkbox" name="cam_cli"> Cliente</td><td><input type="text" name="cam_d"></td></tr>
                     <tr><td>Sonorização</td><td><input type="radio" name="som" value="Sim"> Sim <input type="radio" name="som" value="Não"> Não</td><td><input type="checkbox" name="som_fk"> Flexi|Kure <input type="checkbox" name="som_cli"> Cliente</td><td><input type="text" name="som_d"></td></tr>
@@ -321,21 +259,21 @@
                     <tr><td>Acessórios</td><td><input type="radio" name="ace" value="Sim"> Sim <input type="radio" name="ace" value="Não"> Não</td><td><input type="checkbox" name="ace_fk"> Flexi|Kure <input type="checkbox" name="ace_cli"> Cliente</td><td><input type="text" name="ace_d"></td></tr>
                 </tbody>
             </table>
+            <p style="font-size: 10px; color: #64748b; margin-top: 5px;">* FK = Flexi | Kure / CLI = Cliente</p>
         </section>
 
         <section>
             <div class="footer-grid">
                 <div class="footer-item">
-                    <label>Unidade Móvel _ Nova:</label>
-                    <input type="text" name="p_nova" placeholder="Prazo entrega (Dias)">
+                    <label>Prazo entrega (Nova):</label>
+                    <input type="text" name="p_nova" placeholder="Dias">
                 </div>
                 <div class="footer-item bg-yellow">
-                    <label>U. Móvel _ Usada (Dias):</label>
+                    <label>U. Móvel Usada (Dias):</label>
                     <input type="text" name="p_usada">
-                    <small>(Avaliar Unidade Móvel)</small>
                 </div>
                 <div class="footer-item bg-yellow">
-                    <label>Novo Prazo de entrega (Dias):</label>
+                    <label>Novo Prazo Total:</label>
                     <input type="text" name="p_novo">
                 </div>
             </div>
@@ -348,132 +286,68 @@
 </div>
 
 <script>
-    // 1. Lógica de Entrada e Login
 function entrarSistema() {
     const nome = document.getElementById('userNameInput').value;
     if (!nome) return alert("Por favor, digite seu nome.");
-
     document.getElementById('loggedUser').innerText = nome;
-
-    // Recupera o rascunho para mostrar quem alterou por último
-    const salvo = localStorage.getItem('precificacao_snapshot');
-    if (salvo) {
-        const snapshot = JSON.parse(salvo);
-        exibirUltimaModificacao(snapshot.ultimaAlteracao.usuario, snapshot.ultimaAlteracao.dataHora);
-        // Opcional: Carregar os dados automaticamente ao entrar
-        // preencherFormulario(snapshot.dados); 
-    } else {
-        const agora = new Date();
-        document.getElementById('accessTime').innerText = "Primeiro acesso: " + agora.toLocaleDateString('pt-BR');
-    }
-
     document.getElementById('overlay').style.display = 'none';
     document.getElementById('topbar').style.display = 'flex';
     document.getElementById('content').style.display = 'block';
-}
-
-// 2. Salvar Localmente (Snapshot com Metadados)
-function salvarLocal() {
-    const dados = getFormData();
-    const nomeUsuario = document.getElementById('loggedUser').innerText;
     const agora = new Date();
-    const dataHora = agora.toLocaleDateString('pt-BR') + " às " + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-    const snapshot = {
-        dados: dados,
-        ultimaAlteracao: {
-            usuario: nomeUsuario,
-            dataHora: dataHora
-        }
-    };
-    
-    localStorage.setItem('precificacao_snapshot', JSON.stringify(snapshot));
-    exibirUltimaModificacao(nomeUsuario, dataHora);
-    alert("Rascunho salvo com sucesso!");
-}
-
-// 3. Salvar JSON (Download do arquivo para o PC)
-function salvarJSON() {
-    const dados = getFormData();
-    const nomeUsuario = document.getElementById('loggedUser').innerText;
-    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `precificacao_${nomeUsuario.replace(/\s/g, '_')}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-// 4. Funções Auxiliares
-function exibirUltimaModificacao(usuario, dataHora) {
-    const infoMeta = document.getElementById('accessTime');
-    if (infoMeta) {
-        infoMeta.innerHTML = `Última alteração por: <strong>${usuario}</strong><br>em ${dataHora}`;
-    }
+    document.getElementById('accessTime').innerText = "Acesso em: " + agora.toLocaleDateString('pt-BR');
 }
 
 function getFormData() {
     const form = document.getElementById('pricingForm');
     const formData = new FormData(form);
     const data = {};
-    
     formData.forEach((value, key) => { data[key] = value; });
-
-    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(cb => { data[cb.name] = cb.checked; });
-
+    form.querySelectorAll('input[type="checkbox"]').forEach(cb => { data[cb.name] = cb.checked; });
     return data;
+}
+
+function salvarLocal() {
+    localStorage.setItem('precificacao_snapshot', JSON.stringify(getFormData()));
+    alert("Rascunho salvo!");
+}
+
+function salvarJSON() {
+    const data = getFormData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `precificacao_${Date.now()}.json`;
+    a.click();
 }
 
 function importarJSON(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result);
-            preencherFormulario(data);
-            alert("Dados importados com sucesso!");
-        } catch (err) {
-            alert("Erro ao ler o arquivo JSON.");
+        const data = JSON.parse(e.target.result);
+        const form = document.getElementById('pricingForm');
+        for (const key in data) {
+            const el = form.elements[key];
+            if (!el) continue;
+            if (el.type === 'checkbox') el.checked = data[key];
+            else if (el.length && el[0].type === 'radio') {
+                for(let i=0; i<el.length; i++) if(el[i].value === data[key]) el[i].checked = true;
+            } else el.value = data[key];
         }
     };
     reader.readAsText(file);
 }
 
-function preencherFormulario(data) {
-    const form = document.getElementById('pricingForm');
-    for (const key in data) {
-        const element = form.elements[key];
-        if (!element) continue;
-
-        if (element.type === 'checkbox') {
-            element.checked = data[key];
-        } else if (element.length && element[0].type === 'radio') {
-            for(let i=0; i<element.length; i++) {
-                if(element[i].value === data[key]) element[i].checked = true;
-            }
-        } else {
-            element.value = data[key];
-        }
-    }
-}
-
 function baixarPDF() {
     const element = document.getElementById('content');
-    const opt = {
-        margin: [10, 10],
-        filename: 'solicitacao_precificacao.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set({
+        margin: 10,
+        filename: 'solicitacao.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(element).save();
 }
-
 </script>
 </body>
 </html>
