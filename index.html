@@ -297,20 +297,21 @@ table tr {
 </div>
 
 <script>
-    // Lógica de Entrada
-    function entrarSistema() {
+    // 1. Lógica de Entrada e Login
+function entrarSistema() {
     const nome = document.getElementById('userNameInput').value;
     if (!nome) return alert("Por favor, digite seu nome.");
 
     document.getElementById('loggedUser').innerText = nome;
 
-    // Verifica se há rascunho anterior para exibir quem alterou por último
+    // Recupera o rascunho para mostrar quem alterou por último
     const salvo = localStorage.getItem('precificacao_snapshot');
     if (salvo) {
         const snapshot = JSON.parse(salvo);
         exibirUltimaModificacao(snapshot.ultimaAlteracao.usuario, snapshot.ultimaAlteracao.dataHora);
+        // Opcional: Carregar os dados automaticamente ao entrar
+        // preencherFormulario(snapshot.dados); 
     } else {
-        // Se for a primeira vez, mostra o acesso atual
         const agora = new Date();
         document.getElementById('accessTime').innerText = "Primeiro acesso: " + agora.toLocaleDateString('pt-BR');
     }
@@ -320,34 +321,8 @@ table tr {
     document.getElementById('content').style.display = 'block';
 }
 
-    // Função de auxilio para coletar dados do form
-    function getFormData() {
-        const form = document.getElementById('pricingForm');
-        const formData = new FormData(form);
-        const data = {};
-        
-        // Coleta inputs normais e radios
-        formData.forEach((value, key) => {
-            data[key] = value;
-        });
-
-        // Coleta checkboxes (que o FormData as vezes pula se não marcados)
-        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(cb => {
-            data[cb.name] = cb.checked;
-        });
-
-        return data;
-    }
-
-    // Salvar Localmente (Apenas feedback visual no MVP)
-    function salvarLocal() {
-        localStorage.setItem('last_save', JSON.stringify(getFormData()));
-        alert("Rascunho salvo no navegador!");
-    }
-
-    // Salvar JSON
-   function salvarLocal() {
+// 2. Salvar Localmente (Snapshot com Metadados)
+function salvarLocal() {
     const dados = getFormData();
     const nomeUsuario = document.getElementById('loggedUser').innerText;
     const agora = new Date();
@@ -360,70 +335,94 @@ table tr {
             dataHora: dataHora
         }
     };
-    localStorage.setItem('precificacao_snapshot', JSON.stringify(snapshot));
     
-    // Atualiza a interface imediatamente após salvar
+    localStorage.setItem('precificacao_snapshot', JSON.stringify(snapshot));
     exibirUltimaModificacao(nomeUsuario, dataHora);
-    alert("Alterações salvas localmente!");
+    alert("Rascunho salvo com sucesso!");
 }
 
-// Função auxiliar para atualizar o texto na Topbar
+// 3. Salvar JSON (Download do arquivo para o PC)
+function salvarJSON() {
+    const dados = getFormData();
+    const nomeUsuario = document.getElementById('loggedUser').innerText;
+    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `precificacao_${nomeUsuario.replace(/\s/g, '_')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// 4. Funções Auxiliares
 function exibirUltimaModificacao(usuario, dataHora) {
     const infoMeta = document.getElementById('accessTime');
-    infoMeta.innerHTML = `Última alteração por: <strong>${usuario}</strong><br>em ${dataHora}`;
+    if (infoMeta) {
+        infoMeta.innerHTML = `Última alteração por: <strong>${usuario}</strong><br>em ${dataHora}`;
+    }
 }
 
+function getFormData() {
+    const form = document.getElementById('pricingForm');
+    const formData = new FormData(form);
+    const data = {};
+    
+    formData.forEach((value, key) => { data[key] = value; });
 
-    // Importar JSON
-    function importarJSON(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => { data[cb.name] = cb.checked; });
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
+    return data;
+}
+
+function importarJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
             const data = JSON.parse(e.target.result);
-            const form = document.getElementById('pricingForm');
-            
-            for (const key in data) {
-                const element = form.elements[key];
-                if (!element) continue;
-
-                if (element.type === 'checkbox') {
-                    element.checked = data[key];
-                } else if (element.length && element[0].type === 'radio') {
-                    // Trata grupo de radios
-                    for(let i=0; i<element.length; i++) {
-                        if(element[i].value === data[key]) element[i].checked = true;
-                    }
-                } else {
-                    element.value = data[key];
-                }
-            }
+            preencherFormulario(data);
             alert("Dados importados com sucesso!");
-        };
-        reader.readAsText(file);
-    }
+        } catch (err) {
+            alert("Erro ao ler o arquivo JSON.");
+        }
+    };
+    reader.readAsText(file);
+}
 
-    // Baixar PDF
-    function baixarPDF() {
+function preencherFormulario(data) {
+    const form = document.getElementById('pricingForm');
+    for (const key in data) {
+        const element = form.elements[key];
+        if (!element) continue;
+
+        if (element.type === 'checkbox') {
+            element.checked = data[key];
+        } else if (element.length && element[0].type === 'radio') {
+            for(let i=0; i<element.length; i++) {
+                if(element[i].value === data[key]) element[i].checked = true;
+            }
+        } else {
+            element.value = data[key];
+        }
+    }
+}
+
+function baixarPDF() {
     const element = document.getElementById('content');
     const opt = {
         margin: [10, 10],
         filename: 'solicitacao_precificacao.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            letterRendering: true
-        },
+        html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        // ESTA LINHA ABAIXO É A CHAVE PARA O AJUSTE:
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
-    
     html2pdf().set(opt).from(element).save();
 }
-</script>
 
+</script>
 </body>
 </html>
