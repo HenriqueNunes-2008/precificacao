@@ -152,8 +152,8 @@ table tr {
         <input type="file" id="importFile" style="display:none" accept=".json" onchange="importarJSON(event)">
 
         <div class="user-meta">
-<span id="loggedUser" style="color: #1e3a8a; font-weight: 800;"></span>
-    <div id="accessTime" style="font-size: 11px; margin-top: 4px; color: #64748b;">
+            <strong id="loggedUser"></strong><br>
+            <span id="accessTime"></span>
         </div>
     </div>
 </div>
@@ -299,26 +299,20 @@ table tr {
 <script>
     // Lógica de Entrada
     function entrarSistema() {
-    const nome = document.getElementById('userNameInput').value;
-    if (!nome) return alert("Por favor, digite seu nome.");
+        const nome = document.getElementById('userNameInput').value;
+        if (!nome) return alert("Por favor, digite seu nome.");
 
-    document.getElementById('loggedUser').innerText = nome;
-
-    // Verifica se há rascunho anterior para exibir quem alterou por último
-    const salvo = localStorage.getItem('precificacao_snapshot');
-    if (salvo) {
-        const snapshot = JSON.parse(salvo);
-        exibirUltimaModificacao(snapshot.ultimaAlteracao.usuario, snapshot.ultimaAlteracao.dataHora);
-    } else {
-        // Se for a primeira vez, mostra o acesso atual
         const agora = new Date();
-        document.getElementById('accessTime').innerText = "Primeiro acesso: " + agora.toLocaleDateString('pt-BR');
-    }
+        const dataStr = agora.toLocaleDateString('pt-BR');
+        const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-    document.getElementById('overlay').style.display = 'none';
-    document.getElementById('topbar').style.display = 'flex';
-    document.getElementById('content').style.display = 'block';
-}
+        document.getElementById('loggedUser').innerText = nome;
+        document.getElementById('accessTime').innerText = dataStr + " - " + horaStr;
+
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('topbar').style.display = 'flex';
+        document.getElementById('content').style.display = 'block';
+    }
 
     // Função de auxilio para coletar dados do form
     function getFormData() {
@@ -347,32 +341,15 @@ table tr {
     }
 
     // Salvar JSON
-   function salvarLocal() {
-    const dados = getFormData();
-    const nomeUsuario = document.getElementById('loggedUser').innerText;
-    const agora = new Date();
-    const dataHora = agora.toLocaleDateString('pt-BR') + " às " + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-    const snapshot = {
-        dados: dados,
-        ultimaAlteracao: {
-            usuario: nomeUsuario,
-            dataHora: dataHora
-        }
-    };
-    localStorage.setItem('precificacao_snapshot', JSON.stringify(snapshot));
-    
-    // Atualiza a interface imediatamente após salvar
-    exibirUltimaModificacao(nomeUsuario, dataHora);
-    alert("Alterações salvas localmente!");
-}
-
-// Função auxiliar para atualizar o texto na Topbar
-function exibirUltimaModificacao(usuario, dataHora) {
-    const infoMeta = document.getElementById('accessTime');
-    infoMeta.innerHTML = `Última alteração por: <strong>${usuario}</strong><br>em ${dataHora}`;
-}
-
+    function salvarJSON() {
+        const data = getFormData();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `precificacao_${new Date().getTime()}.json`;
+        a.click();
+    }
 
     // Importar JSON
     function importarJSON(event) {
