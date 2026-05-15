@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitação de Precificação Completa</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { 
+    margin: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    background: linear-gradient(90deg, #0093dd 30%, #5b2fa6);
+    color: #0f172a;
+    padding-top: 140px; /* Aumentado para compensar a altura de 120px da barra */
+}
+        
+        /* Estilos da Topbar */
+       .topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 120px; /* Altura conforme seu exemplo */
+    background: #ffffff;
+    z-index: 950;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    border-radius: 0 0 50px 50px; /* Bordas arredondadas apenas em baixo */
+    display: none; /* Controlado pelo script de login */
+    align-items: center;
+    padding: 0 40px;
+    box-sizing: border-box;
+}
+
+.topbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 20px; /* Espaçamento entre os blocos (Logo, Botões e User) */
+}
+
+/* Ajuste das cores dos botões para não sumirem no fundo branco */
+.topbar button { 
+    background: #3498db; 
+    color: white; 
+    border: none; 
+    padding: 10px 18px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-size: 13px; 
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.topbar button:hover {
+    filter: brightness(0.9);
+}
+
+.topbar .btn-save { 
+    background: #27ae60; 
+}
+
+/* Texto do usuário em preto/cinza escuro */
+.user-meta {
+    font-size: 12px;
+    text-align: right;
+    line-height: 1.3;
+    color: #475569;
+    padding-left: 15px;
+    border-left: 1px solid #e2e8f0; /* Mudado para borda esquerda para separar dos botões */
+    margin-left: 10px;
+}
+
+.logo-fixed {
+    height: 70px; /* Logo maior para preencher melhor os 120px de altura */
+    width: auto;
+    transform: scale(1.5);
+    transform-origin: left center;
+}
+        /* Pop-up de Login */
+        #overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
+            display: flex; align-items: center; justify-content: center; z-index: 1000; 
+        }
+        .login-box { background: white; padding: 30px; border-radius: 8px; width: 300px; text-align: center; }
+        .login-box input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; }
+    
+ /* Grupo de botões */
+.button-group {
+    display: flex;
+    gap: 15px; /* "Desprende" os botões uns dos outros */
+    margin-left: auto; /* Joga todo este bloco para a direita da tela */
+}       
+
+        /* Container original */
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: none; }
+        .header { background-color: #3498db; color: white; padding: 15px; text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; }
+        section { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; }
+        h3 { margin-top: 0; border-bottom: 2px solid #3498db; padding-bottom: 5px; color: #2c3e50; font-size: 16px; }
+        .field-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 10px; }
+        .field { flex: 1; min-width: 200px; }
+        label { font-weight: bold; display: block; margin-bottom: 3px; font-size: 13px; }
+        input[type="text"], textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; font-size: 12px; }
+        th { background-color: #ecf0f1; }
+        .inline-group { display: flex; gap: 10px; align-items: center; }
+        .bg-yellow { background-color: #ffffcc; font-weight: bold; }
+        .footer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border: 1px solid #ccc; }
+        .footer-item { padding: 10px; border: 1px solid #eee; }
+
+        /* Evita que seções sejam cortadas entre páginas */
+section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+/* Evita que linhas de tabelas sejam cortadas */
+table tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+/* Força uma nova página antes de seções muito grandes, se necessário */
+.page-break {
+    page-break-before: always;
+}
+
+        @media print { .topbar { display: none; } }
+    </style>
+</head>
+<body>
+
+<div id="overlay">
+    <div class="login-box">
+        <h3>Identificação</h3>
+        <input type="text" id="userNameInput" placeholder="Seu nome completo">
+        <button onclick="entrarSistema()" style="background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold;">ENTRAR</button>
+    </div>
+</div>
+
+<div class="topbar" id="topbar">
+    <div class="topbar-content">
+        <img src="/static/LogoFlexcolor2.png" class="logo-fixed" alt="Logo">
+
+        <div class="button-group">
+            <button class="btn-save" onclick="salvarLocal()">Salvar</button>
+            <button onclick="salvarJSON()">Salvar JSON</button>
+            <button onclick="document.getElementById('importFile').click()">Importar JSON</button>
+            <button onclick="baixarPDF()">Baixar PDF</button>
+        </div>
+
+        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importarJSON(event)">
+
+        <div class="user-meta">
+            <strong id="loggedUser"></strong><br>
+            <span id="accessTime"></span>
+        </div>
+    </div>
+</div>
+
+<div class="container" id="content">
+    <div class="header">Solicitação de Precificação</div>
+
+    <form id="pricingForm">
+        <section>
+            <div class="field-row">
+                <div class="field"><label>Representante comercial:</label><input type="text" name="representante" placeholder="XXXXXXX"></div>
+                <div class="field" style="max-width: 150px;"><label>Data:</label><input type="text" name="data_geral" placeholder="XX / XX / XXXX"></div>
+            </div>
+        </section>
+
+        <section>
+            <h3>Informações do cliente</h3>
+            <div class="field-row">
+                <div class="field">
+                    <label>Prioridade da solicitação:</label>
+                    <div class="inline-group">
+                        <label><input type="radio" name="prio" value="Normal"> Normal</label>
+                        <label><input type="radio" name="prio" value="Média"> Média</label>
+                        <label><input type="radio" name="prio" value="Alta"> Alta</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Tipo de negócio:</label>
+                    <div class="inline-group">
+                        <label><input type="radio" name="negocio" value="Licitação"> Licitação</label>
+                        <label><input type="radio" name="negocio" value="Privado"> Privado</label>
+                        <label><input type="radio" name="negocio" value="Público"> Público</label>
+                    </div>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field"><label>UF do CNPJ do cliente:</label><input type="text" name="uf_cnpj"></div>
+                <div class="field"><label>Inscrição Estadual:</label><input type="text" name="ie"></div>
+            </div>
+            <div class="field-row">
+                <div class="field"><label>Nome do cliente:</label><input type="text" name="cliente"></div>
+            </div>
+            <div class="field">
+                <label>Forma de Pagamento:</label>
+                <div class="inline-group">
+                    <label><input type="radio" name="pgto" value="À vista"> À vista</label>
+                    <label><input type="radio" name="pgto" value="Parcelado"> Parcelado</label>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <label>Quais serviços/ Atendimentos serão oferecidos na unidade?</label>
+            <textarea name="servicos" rows="2"></textarea>
+            
+            <div style="margin-top: 15px;">
+                <label>Tipo de implemento/ veículo:</label>
+                <input type="text" name="veiculo">
+            </div>
+
+            <div class="field-row" style="margin-top: 15px; background: #f9f9f9; padding: 10px; border: 1px dashed #bbb;">
+                <div class="field">
+                    <label>Unidade Móvel:</label>
+                    <div class="inline-group">
+                        <label><input type="radio" name="um_tipo" value="Nova"> Nova</label>
+                        <label><input type="radio" name="um_tipo" value="Usada"> Usada</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Contrapartida:</label>
+                    <div class="inline-group">
+                        <label><input type="checkbox" name="cp_fk"> Flexi | Kure</label>
+                        <label><input type="checkbox" name="cp_cli"> Cliente</label>
+                    </div>
+                </div>
+                <div class="field"><label>Detalhar:</label><input type="text" name="um_detalhe"></div>
+            </div>
+        </section>
+
+        <section>
+            <h3>Especificações adicionais</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="30%">Item</th>
+                        <th width="20%">Opção</th>
+                        <th width="20%">Contrapartida</th>
+                        <th width="30%">Detalhar (Escrita)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Tensão elétrica (interna)</td><td><input type="radio" name="t_int" value="127V"> 127V <input type="radio" name="t_int" value="220V"> 220V</td><td><input type="checkbox" name="t_int_fk"> Flexi|Kure <input type="checkbox" name="t_int_cli"> Cliente</td><td><input type="text" name="t_int_d"></td></tr>
+                    <tr><td>Câmera</td><td><input type="radio" name="cam" value="Sim"> Sim <input type="radio" name="cam" value="Não"> Não</td><td><input type="checkbox" name="cam_fk"> Flexi|Kure <input type="checkbox" name="cam_cli"> Cliente</td><td><input type="text" name="cam_d"></td></tr>
+                    <tr><td>Sonorização</td><td><input type="radio" name="som" value="Sim"> Sim <input type="radio" name="som" value="Não"> Não</td><td><input type="checkbox" name="som_fk"> Flexi|Kure <input type="checkbox" name="som_cli"> Cliente</td><td><input type="text" name="som_d"></td></tr>
+                    <tr><td>Transformador</td><td><input type="radio" name="tr" value="Sim"> Sim <input type="radio" name="tr" value="Não"> Não</td><td><input type="checkbox" name="tr_fk"> Flexi|Kure <input type="checkbox" name="tr_cli"> Cliente</td><td><input type="text" name="tr_d"></td></tr>
+                    <tr><td>Ar condicionado</td><td><input type="radio" name="ar" value="Sim"> Sim <input type="radio" name="ar" value="Não"> Não</td><td><input type="checkbox" name="ar_fk"> Flexi|Kure <input type="checkbox" name="ar_cli"> Cliente</td><td><input type="text" name="ar_d" placeholder="Qual modelo?"></td></tr>
+                    <tr><td>Gerador/ Bateria</td><td><input type="radio" name="ger" value="Sim"> Sim <input type="radio" name="ger" value="Não"> Não</td><td><input type="checkbox" name="ger_fk"> Flexi|Kure <input type="checkbox" name="ger_cli"> Cliente</td><td><input type="text" name="ger_d" placeholder="Tipo?"></td></tr>
+                    <tr><td>Equipamentos médicos</td><td><input type="radio" name="eqm" value="Sim"> Sim <input type="radio" name="eqm" value="Não"> Não</td><td><input type="checkbox" name="eqm_fk"> Flexi|Kure <input type="checkbox" name="eqm_cli"> Cliente</td><td><input type="text" name="eqm_d" placeholder="Quais?"></td></tr>
+                    <tr><td>Toldo</td><td><input type="radio" name="tol" value="Sim"> Sim <input type="radio" name="tol" value="Não"> Não</td><td><input type="checkbox" name="tol_fk"> Flexi|Kure <input type="checkbox" name="tol_cli"> Cliente</td><td><input type="text" name="tol_d" placeholder="Fornecedor?"></td></tr>
+                    <tr><td>Adesivagem</td><td><input type="radio" name="ade" value="Sim"> Sim <input type="radio" name="ade" value="Não"> Não</td><td><input type="checkbox" name="ade_fk"> Flexi|Kure <input type="checkbox" name="ade_cli"> Cliente</td><td><input type="text" name="ade_d" placeholder="Já possui arte?"></td></tr>
+                    <tr><td>Frete</td><td><input type="radio" name="fre" value="Sim"> Sim <input type="radio" name="fre" value="Não"> Não</td><td><input type="checkbox" name="fre_fk"> Flexi|Kure <input type="checkbox" name="fre_cli"> Cliente</td><td><input type="text" name="fre_d" placeholder="Ida/Volta?"></td></tr>
+                    <tr><td>Implantação</td><td><input type="radio" name="imp" value="Sim"> Sim <input type="radio" name="imp" value="Não"> Não</td><td><input type="checkbox" name="imp_fk"> Flexi|Kure <input type="checkbox" name="imp_cli"> Cliente</td><td><input type="text" name="imp_d"></td></tr>
+                    <tr><td>Licitação</td><td colspan="2"><input type="radio" name="lic" value="Margem <"> Margem < <input type="radio" name="lic" value='Margem "0"' style="margin-left:15px;"> Margem "0"</td><td><input type="text" name="lic_d"></td></tr>
+                    <tr><td>Elevador PCD</td><td><input type="radio" name="pcd" value="Sim"> Sim <input type="radio" name="pcd" value="Não"> Não</td><td><input type="checkbox" name="pcd_fk"> Flexi|Kure <input type="checkbox" name="pcd_cli"> Cliente</td><td><input type="text" name="pcd_d"></td></tr>
+                    <tr><td>Rampa de acessibilidade</td><td><input type="radio" name="rampa" value="Sim"> Sim <input type="radio" name="rampa" value="Não"> Não</td><td><input type="checkbox" name="rampa_fk"> Flexi|Kure <input type="checkbox" name="rampa_cli"> Cliente</td><td><input type="text" name="rampa_d"></td></tr>
+                    <tr><td>Filtro HEPA</td><td><input type="radio" name="hepa" value="Sim"> Sim <input type="radio" name="hepa" value="Não"> Não</td><td><input type="checkbox" name="hepa_fk"> Flexi|Kure <input type="checkbox" name="hepa_cli"> Cliente</td><td><input type="text" name="hepa_d"></td></tr>
+                    <tr><td>Licenciamento</td><td><input type="radio" name="licen" value="Sim"> Sim <input type="radio" name="licen" value="Não"> Não</td><td><input type="checkbox" name="licen_fk"> Flexi|Kure <input type="checkbox" name="licen_cli"> Cliente</td><td><input type="text" name="licen_d"></td></tr>
+                    <tr><td>Laudo/ Certificação</td><td><input type="radio" name="laudo" value="Sim"> Sim <input type="radio" name="laudo" value="Não"> Não</td><td><input type="checkbox" name="laudo_fk"> Flexi|Kure <input type="checkbox" name="laudo_cli"> Cliente</td><td><input type="text" name="laudo_d"></td></tr>
+                    <tr><td>Mobiliário</td><td><input type="radio" name="mob" value="Sim"> Sim <input type="radio" name="mob" value="Não"> Não</td><td><input type="checkbox" name="mob_fk"> Flexi|Kure <input type="checkbox" name="mob_cli"> Cliente</td><td><input type="text" name="mob_d"></td></tr>
+                    <tr><td>Equipamentos</td><td><input type="radio" name="eqp" value="Sim"> Sim <input type="radio" name="eqp" value="Não"> Não</td><td><input type="checkbox" name="eqp_fk"> Flexi|Kure <input type="checkbox" name="eqp_cli"> Cliente</td><td><input type="text" name="eqp_d"></td></tr>
+                    <tr><td>Local de Uso</td><td><input type="radio" name="uso" value="Coberto"> Coberto <input type="radio" name="uso" value="Ar livre"> Ar livre</td><td>---</td><td><input type="text" name="uso_d"></td></tr>
+                    <tr><td>Visita Técnica</td><td><input type="radio" name="vt" value="Sim"> Sim <input type="radio" name="vt" value="Não"> Não</td><td><input type="checkbox" name="vt_fk"> Flexi|Kure <input type="checkbox" name="vt_cli"> Cliente</td><td><input type="text" name="vt_d"></td></tr>
+                    <tr><td>Instalação Equip. Médicos</td><td><input type="radio" name="inst" value="Sim"> Sim <input type="radio" name="inst" value="Não"> Não</td><td><input type="checkbox" name="inst_fk"> Flexi|Kure <input type="checkbox" name="inst_cli"> Cliente</td><td><input type="text" name="inst_d"></td></tr>
+                    <tr><td>Acessórios</td><td><input type="radio" name="ace" value="Sim"> Sim <input type="radio" name="ace" value="Não"> Não</td><td><input type="checkbox" name="ace_fk"> Flexi|Kure <input type="checkbox" name="ace_cli"> Cliente</td><td><input type="text" name="ace_d"></td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <div class="footer-grid">
+                <div class="footer-item">
+                    <label>Unidade Móvel _ Nova:</label>
+                    <input type="text" name="p_nova" placeholder="Prazo entrega (Dias)">
+                </div>
+                <div class="footer-item bg-yellow">
+                    <label>U. Móvel _ Usada (Dias):</label>
+                    <input type="text" name="p_usada">
+                    <small>(Avaliar Unidade Móvel)</small>
+                </div>
+                <div class="footer-item bg-yellow">
+                    <label>Novo Prazo de entrega (Dias):</label>
+                    <input type="text" name="p_novo">
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <label>Observações:</label>
+                <textarea name="obs_final" rows="4"></textarea>
+            </div>
+        </section>
+    </form>
+</div>
+
+<script>
+    // Lógica de Entrada
+    function entrarSistema() {
+        const nome = document.getElementById('userNameInput').value;
+        if (!nome) return alert("Por favor, digite seu nome.");
+
+        const agora = new Date();
+        const dataStr = agora.toLocaleDateString('pt-BR');
+        const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+        document.getElementById('loggedUser').innerText = nome;
+        document.getElementById('accessTime').innerText = dataStr + " - " + horaStr;
+
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('topbar').style.display = 'flex';
+        document.getElementById('content').style.display = 'block';
+    }
+
+    // Função de auxilio para coletar dados do form
+    function getFormData() {
+        const form = document.getElementById('pricingForm');
+        const formData = new FormData(form);
+        const data = {};
+        
+        // Coleta inputs normais e radios
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+
+        // Coleta checkboxes (que o FormData as vezes pula se não marcados)
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            data[cb.name] = cb.checked;
+        });
+
+        return data;
+    }
+
+    // Salvar Localmente (Apenas feedback visual no MVP)
+    function salvarLocal() {
+        localStorage.setItem('last_save', JSON.stringify(getFormData()));
+        alert("Rascunho salvo no navegador!");
+    }
+
+    // Salvar JSON
+    function salvarJSON() {
+        const data = getFormData();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `precificacao_${new Date().getTime()}.json`;
+        a.click();
+    }
+
+    // Importar JSON
+    function importarJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = JSON.parse(e.target.result);
+            const form = document.getElementById('pricingForm');
+            
+            for (const key in data) {
+                const element = form.elements[key];
+                if (!element) continue;
+
+                if (element.type === 'checkbox') {
+                    element.checked = data[key];
+                } else if (element.length && element[0].type === 'radio') {
+                    // Trata grupo de radios
+                    for(let i=0; i<element.length; i++) {
+                        if(element[i].value === data[key]) element[i].checked = true;
+                    }
+                } else {
+                    element.value = data[key];
+                }
+            }
+            alert("Dados importados com sucesso!");
+        };
+        reader.readAsText(file);
+    }
+
+    // Baixar PDF
+    function baixarPDF() {
+    const element = document.getElementById('content');
+    const opt = {
+        margin: [10, 10],
+        filename: 'solicitacao_precificacao.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            letterRendering: true
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        // ESTA LINHA ABAIXO É A CHAVE PARA O AJUSTE:
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+    
+    html2pdf().set(opt).from(element).save();
+}
+</script>
+
+</body>
+</html>
